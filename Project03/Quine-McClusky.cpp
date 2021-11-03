@@ -259,9 +259,12 @@ int main(int argc, char* argv[]){
             }
         }
         if(count == 1){
-            reducedOutput.push_back(inputFunctions[onlyOneContained]);
-            primeTableBuffer.erase(find(primeTableBuffer.begin(), primeTableBuffer.end(), primeTable[onlyOneContained]));
-            inputFunctionBuf.erase(find(inputFunctionBuf.begin(), inputFunctionBuf.end(), inputFunctions[onlyOneContained]));
+            if(find(reducedOutput.begin(), reducedOutput.end(), inputFunctions[onlyOneContained]) == reducedOutput.end())
+                reducedOutput.push_back(inputFunctions[onlyOneContained]);
+            if(!primeTableBuffer.empty())
+                primeTableBuffer.erase(find(primeTableBuffer.begin(), primeTableBuffer.end(), primeTable[onlyOneContained]));
+            if(!inputFunctionBuf.empty())
+                inputFunctionBuf.erase(find(inputFunctionBuf.begin(), inputFunctionBuf.end(), inputFunctions[onlyOneContained]));
             vector<int> indexToBeClear;
             //Clear repeated 
             for(int j = 0; j < pow(2, plaInput.inputAmount); j++){
@@ -281,24 +284,25 @@ int main(int argc, char* argv[]){
     //Patrick's Method
     //List target term
     vector<int> target_Terms;
-    for(int i = 0; i < pow(2, plaInput.inputAmount); i++){
-        bool flag = false;
-        for(int j = 0; j < primeTable.size(); j++){
-            if(primeTable[j][i]){
-                flag = true;
+    if(!inputFunctions.empty()){
+        for(int i = 0; i < pow(2, plaInput.inputAmount); i++){
+            bool flag = false;
+            for(int j = 0; j < primeTable.size(); j++){
+                if(primeTable[j][i]){
+                    flag = true;
+                }
+            }
+            if(flag){
+                target_Terms.push_back(i);
             }
         }
-        if(flag){
-            target_Terms.push_back(i);
+        //Find the combination to fulfill target term
+        vector<int> solSetBuffer;
+        petrickBestSol(primeTable, target_Terms, solSetBuffer, 0);
+        for(int i = 0; i < bestSolSet.size(); i++){
+            reducedOutput.push_back(inputFunctions[bestSolSet[i]]);
         }
     }
-    //Find the combination to fulfill target term
-    vector<int> solSetBuffer;
-    petrickBestSol(primeTable, target_Terms, solSetBuffer, 0);
-    for(int i = 0; i < bestSolSet.size(); i++){
-        reducedOutput.push_back(inputFunctions[bestSolSet[i]]);
-    }
-    
     //Output
     output << ".i " << plaInput.inputAmount << '\n';
     output << ".o " << plaInput.outputAmount << '\n';
