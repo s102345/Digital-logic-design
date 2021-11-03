@@ -159,34 +159,40 @@ int main(int argc, char* argv[]){
     //Input process
     //Get value after process
     vector<string> inputFunctions = dont_care_processer(plaInput.function);
-    
     //PI
     //Finding prime implicants
     //Buffer
     vector<string> primeBuffer;
-    
     while(true){
         bool isReductionExist = false;
         for(int i = 0; i < inputFunctions.size(); i++){
-            for(int j = i + 1; j < inputFunctions.size(); j++){
+            bool noReductionForThis = true;
+            for(int j = 0; j < inputFunctions.size(); j++){
+                if(i == j) continue;
                 //Check for the difference of 1 char
                 int differenceCount = 0;
                 int differencePos = 0;
                 //cout << inputFunctions[i] << " " << inputFunctions[j] << '\n';
                 for(int k = 0; k < plaInput.inputAmount; k++){
-                    if(inputFunctions[i][k] != inputFunctions[j][k]){
+                    if(inputFunctions[i][k] != inputFunctions[j][k] && (inputFunctions[i][k] != '-' || inputFunctions[j][k] != '-')){
                         differenceCount++;
                         differencePos = k;
                     }
                 }
                 if(differenceCount == 1){
                     isReductionExist = true;
+                    noReductionForThis = false;
                     string buffer = inputFunctions[i];
                     buffer[differencePos] = '-';
                     //If not exist
                     if(find(primeBuffer.begin(), primeBuffer.end(), buffer) == primeBuffer.end()){
                         primeBuffer.push_back(buffer);
                     }
+                }
+            }
+            if(noReductionForThis){
+                if(find(primeBuffer.begin(), primeBuffer.end(), inputFunctions[i]) == primeBuffer.end()){
+                    primeBuffer.push_back(inputFunctions[i]);
                 }
             }
         }
@@ -197,6 +203,9 @@ int main(int argc, char* argv[]){
             inputFunctions = primeBuffer;
             primeBuffer.clear();
         }
+    }
+    for(int i = 0; i < inputFunctions.size(); i++){
+        cout << inputFunctions[i] << '\n';
     }
     vector<string> reducedOutput;
     //Essential Prime chart
@@ -245,6 +254,12 @@ int main(int argc, char* argv[]){
             primeTable[i][index] = true;
         }
     }
+    for(int i = 0; i < primeTable.size(); i++){
+        for(int j = 0; j < primeTable[i].size(); j++){
+            cout << primeTable[i][j] << ' ';
+        }
+        cout << '\n';
+    }
     vector<vector<bool>> primeTableBuffer = primeTable;
     vector<string> inputFunctionBuf = inputFunctions;
     //Calculate essential prime
@@ -278,6 +293,9 @@ int main(int argc, char* argv[]){
                 }
             }
         }
+    }
+    for(int i = 0; i < reducedOutput.size(); i++){
+        cout << reducedOutput[i] << '\n';
     }
     inputFunctions = inputFunctionBuf;
     primeTable = primeTableBuffer;

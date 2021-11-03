@@ -1,1 +1,1 @@
-inputFunction
+                    cout << inputFunctions[i] << '\n';
