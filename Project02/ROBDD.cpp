@@ -29,13 +29,14 @@ typedef struct node{
 int main(int argc, char* argv[]){
     //command be like ROBDD   <pla file> <dot file>
     //                argv[0]   argv[1]   argv[2]
+    /*
     if(argc != 3){
         cout << "Unknown command!\n";
         return 0;
-    }
+    }*/
     fstream input, output;
-    input.open(argv[1], ios::in);
-    output.open(argv[2], ios::out);
+    input.open("test1.pla", ios::in);
+    output.open("output.dot", ios::out);
     //Input Process
     //Store pla file
     string prefix;
@@ -159,7 +160,7 @@ int main(int argc, char* argv[]){
     
     binaryTree[0].varibleName = "false";
     binaryTree[binaryTree.size() - 1].varibleName = "true";
-
+    cout << "hi";
     //Build
     //+1 for easer read
     for(int i = 1; i < plaInput.inputAmount + 1; i++){
@@ -177,6 +178,7 @@ int main(int argc, char* argv[]){
         else{
         //set node 
             for(int j = pow(2, i - 1); j < pow(2, i); j++){
+                
                 binaryTree[j].varibleName = plaInput.inputVaribles[i - 1];
                 if(j * 2 + 1 < binaryTree.size()){
                     binaryTree[j].elseEdge = j * 2;

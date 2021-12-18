@@ -1,1 +1,1 @@
-cout
+bool isDontCareExist = false;

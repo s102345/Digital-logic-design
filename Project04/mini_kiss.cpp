@@ -11,13 +11,15 @@
 
 using namespace std;
 
+string firstNode = "";
+
 //Turn state into index
-int stateToIndex(string beginNode, string state){
+int stateToIndex(string state){
     //S_, S_
     if(state[0] == 'S' || state[0] == 's'){
         string beginNodeNum = "", stateNum = "";
-        for(int i = 1; i < beginNode.length(); i++){
-            beginNodeNum += beginNode[i];
+        for(int i = 1; i < firstNode.length(); i++){
+            beginNodeNum += firstNode[i];
         }
         for(int i = 1; i < state.length(); i++){
             stateNum += state[i];
@@ -26,25 +28,25 @@ int stateToIndex(string beginNode, string state){
     }
     //A, B, C
     else{
-        return state[0] - beginNode[0];
+        return state[0] - firstNode[0];
     }
 }
 
 //Turn index into state
-string indexToState(string beginNode, int index){
+string indexToState(int index){
     //S_, S_
-    if(beginNode[0] == 'S' || beginNode[0] == 's'){
+    if(firstNode[0] == 'S' || firstNode[0] == 's'){
         string beginNodeNum = "";
-        for(int i = 1; i < beginNode.length(); i++){
-            beginNodeNum += beginNode[i];
+        for(int i = 1; i < firstNode.length(); i++){
+            beginNodeNum += firstNode[i];
         }   
-        return beginNode[0] + to_string(stoi(beginNodeNum) + index);
+        return firstNode[0] + to_string(stoi(beginNodeNum) + index);
     }
     //A, B, C
     else{
         //Pretending to be str
         string str =  "";
-        str += char(beginNode[0] + index);
+        str += char(firstNode[0] + index);
         return str;
     }
 }
@@ -75,19 +77,21 @@ int main(int argc, char* argv[]){
     //                argv[0]    argv[1]    argv[2]  argv[3]
     
     fstream input, kiss_output, dot_output;
-    /*
+    
     if(argc != 4){
         cout << "Unknown command!\n";
         return 0;
     }
+    
     input.open(argv[1], ios::in);
     kiss_output.open(argv[2], ios::out);
     dot_output.open(argv[3], ios::out);
-    */
     
-    input.open("case4.kiss", ios::in);
-    kiss_output.open("case4_output.kiss", ios::out);
-    dot_output.open("case4_dot_output.dot", ios::out);
+    /*
+    input.open("test2.kiss", ios::in);
+    kiss_output.open("test2.out", ios::out);
+    dot_output.open("test2_dot.dot", ios::out);
+    */
 
     kissForm kissInput;
 
@@ -120,6 +124,9 @@ int main(int argc, char* argv[]){
             for(int i = 0; i < kissInput.edgeAmount; i++){
                 edge input_buffer;        
                 input >> input_buffer.inputValue >> input_buffer.source >> input_buffer.destination >> input_buffer.outputValue;
+                if(i == 0){
+                    firstNode = input_buffer.source;
+                }
                 kissInput.allEdges[i] = input_buffer;
             }
         }
@@ -226,7 +233,6 @@ int main(int argc, char* argv[]){
             }
         }
         implicationTable = tempImplicationTable;
-        
        
         //Remove incompatible transition pairs
         bool isAnyIncompatible = false;
@@ -239,34 +245,24 @@ int main(int argc, char* argv[]){
                     if(implicationTable[i][j][0].first == "-" && implicationTable[i][j][0].second == "-"){
                         continue;
                     }
+               
                     int index_0, index_1;
                     for(int k = 0; k < pow(2, kissInput.inputAmount); k++){
-                        index_0 = stateToIndex(kissInput.beginNode, implicationTable[i][j][k].first);
-                        index_1 = stateToIndex(kissInput.beginNode, implicationTable[i][j][k].second);
+                        index_0 = stateToIndex(implicationTable[i][j][k].first);
+                        index_1 = stateToIndex(implicationTable[i][j][k].second);
                         if(index_1 > index_0) swap(index_0, index_1);
                         if((implicationTable[index_0][index_1][0].first == "-" && implicationTable[index_0][index_1][0].second == "-")){
                             isAnyIncompatible = true;
                             for(int l = 0; l < pow(2, kissInput.inputAmount); l++){
                                 tempImplicationTable[i][j][l] = make_pair("-", "-");
-                            }
+                            }     
                         }
                     }
                 }
             }
             implicationTable = tempImplicationTable;  
         }while(isAnyIncompatible);
-        /*
-        //Print
-        for(int i = 0; i < statementTable.size(); i++){
-            for(int j = 0; j < statementTable.size(); j++){
-                for(int k = 0; k < pow(2, kissInput.inputAmount); k++){
-                    cout << "(" << implicationTable[i][j][k].first << ',' << implicationTable[i][j][k].second << ")";
-                    if(k == pow(2, kissInput.inputAmount) - 1) cout << ',';
-                }
-            }
-            cout << '\n';
-        }
-        */
+   
         //Merge
         //Remaining index -> can be merge 
         for(int i = 1; i < statementTable.size(); i++){
@@ -275,8 +271,8 @@ int main(int argc, char* argv[]){
                 if(implicationTable[i][j][0].first != "-" && implicationTable[i][j][0].second != "-"){
                     int merge_index = j, be_merged_index = i;
                     string merge_state, be_merged_state;
-                    merge_state = indexToState(kissInput.beginNode, merge_index);
-                    be_merged_state = indexToState(kissInput.beginNode, be_merged_index);
+                    merge_state = indexToState(merge_index);
+                    be_merged_state = indexToState(be_merged_index);
                     //repeated
                     if(statementTable[be_merged_index][0].first == "-"){
                         break;
@@ -365,7 +361,7 @@ int main(int argc, char* argv[]){
                         break;
                 }
             }
-            kiss_output << indexToState(kissInput.beginNode, i) << " ";
+            kiss_output << indexToState(i) << " ";
             //destniation & output
             kiss_output << statementTable[i][j].first << " " << statementTable[i][j].second << '\n';        
         }
@@ -379,7 +375,7 @@ int main(int argc, char* argv[]){
         if(statementTable[i][0].first == "-"){
             continue;
         }
-        dot_output << indexToState(kissInput.beginNode, i) << " [label=\"" << indexToState(kissInput.beginNode, i) << "\"];\n";
+        dot_output << indexToState(i) << " [label=\"" << indexToState(i) << "\"];\n";
     }
     dot_output << '\n';
     
@@ -389,7 +385,7 @@ int main(int argc, char* argv[]){
             if(statementTable[i][0].first == "-"){
                 continue;
             }
-            dot_output << indexToState(kissInput.beginNode, i) << " -> " << statementTable[i][j].first;
+            dot_output << indexToState(i) << " -> " << statementTable[i][j].first;
             dot_output << " [label=\"";
             if(kissInput.inputAmount == 1){
                 dot_output << j;
