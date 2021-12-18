@@ -273,6 +273,9 @@ int main(int argc, char* argv[]){
                     string merge_state, be_merged_state;
                     merge_state = indexToState(merge_index);
                     be_merged_state = indexToState(be_merged_index);
+                    if(kissInput.beginNode == be_merged_state){
+                        kissInput.beginNode = merge_state;
+                    }
                     //repeated
                     if(statementTable[be_merged_index][0].first == "-"){
                         break;
